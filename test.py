@@ -3,6 +3,7 @@ import os
 import logging
 import requests
 import json
+from fastapi import FastAPI
 
 schema_text = """
 Table: users (id, name, email)
@@ -105,5 +106,62 @@ def QueryLLM(question, context):
 #--------------------------------------------------------------------------------------------------------
 
 context= Retrieve(schema_text)
-answer = QueryLLM("Hey, how youre doing?", context)
-print(answer)
+
+
+
+# userQuestion = ""
+# while userQuestion != 'exit':
+#     print("Enter: ")
+#     userQuestion = input()
+#     answer = QueryLLM(f"{userQuestion}", context)
+#     print(answer)
+
+# from pydantic import BaseModel, Field   
+
+
+# class Item(BaseModel):
+#     message:str
+
+# app = FastAPI()
+
+# app.post("/")
+# async def getMessage(item: Item):
+#     REQ = item.dict()
+#     answer = QueryLLM(f"{REQ['message']}", context)
+
+#     return {"answer": answer}
+
+# app.get("/")
+# print("good")
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class QueryRequest(BaseModel):
+    question: str
+
+# Initialize your context once at startup
+context = Retrieve(schema_text)
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
+@app.post("/query")
+async def query_llm(request: QueryRequest):
+    try:
+        answer = QueryLLM(request.question, context)
+        return {"answer": answer}
+    except Exception as e:
+        return {"error": str(e)}, 500
