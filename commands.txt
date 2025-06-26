@@ -1,2 +1,4 @@
 pip install chromadb==0.6.3
 pip install langchain-chroma
+pip install langchain-core
+pip install tabulate

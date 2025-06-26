@@ -387,6 +387,7 @@ Table: products (id, name, price)
                 
                 try {
                     const response = await this.sendQuestion(question);
+                    
                     this.addMessage(response, 'assistant');
                 } catch (error) {
                     this.addMessage(`Error: ${error.message}`, 'assistant');
@@ -418,6 +419,7 @@ Table: products (id, name, price)
                 
                 const bubbleDiv = document.createElement('div');
                 bubbleDiv.className = 'message-bubble';
+                
                 bubbleDiv.textContent = content;
                 
                 messageDiv.appendChild(bubbleDiv);
