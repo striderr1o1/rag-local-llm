@@ -216,9 +216,9 @@ async def query_llm_endpoint(request: QueryRequest):
         print(f"Generated query: {result}...")
         # df= pd.DataFrame(result)
         new = []
-        for i in range(len(result)):
-            temp = list(result[i].items())
-            result[i] = temp
+        # for i in range(len(result)):
+        #     temp = list(result[i].items())
+        #     result[i] = temp
         return {"answer": str(result),
                  "status": "success"}
         # return JSONResponse(content=result)
