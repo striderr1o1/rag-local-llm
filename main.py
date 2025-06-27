@@ -219,8 +219,11 @@ async def query_llm_endpoint(request: QueryRequest):
         # for i in range(len(result)):
         #     temp = list(result[i].items())
         #     result[i] = temp
-        return {"answer": str(result),
-                 "status": "success"}
+        return {
+    "answer": answer,   # LLM's answer (the SQL or explanation)
+    "result": result,   # SQL query result (list of dicts)
+    "status": "success"
+}
         # return JSONResponse(content=result)
     
     except Exception as e:

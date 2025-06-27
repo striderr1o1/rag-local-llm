@@ -340,7 +340,22 @@ Table: products (id, name, price)
                 
                 this.initializeEventListeners();
                 this.checkConnection();
+                this.createTableFromResult(result);
             }
+            createTableFromResult(result) {
+    if (!Array.isArray(result) || result.length === 0) {
+        return '<div>No results found.</div>';
+    }
+    const columns = Object.keys(result[0]);
+    let html = '<table style="width:100%; border-collapse:collapse; margin-top:10px;">';
+    html += '<thead><tr>' + columns.map(col => `<th style="border:1px solid #ccc; padding:4px;">${col}</th>`).join('') + '</tr></thead>';
+    html += '<tbody>';
+    for (const row of result) {
+        html += '<tr>' + columns.map(col => `<td style="border:1px solid #ccc; padding:4px;">${row[col]}</td>`).join('') + '</tr>';
+    }
+    html += '</tbody></table>';
+    return html;
+}
 
             initializeEventListeners() {
                 this.sendButton.addEventListener('click', () => this.handleSendMessage());
@@ -374,27 +389,49 @@ Table: products (id, name, price)
                 }
             }
 
-            async handleSendMessage() {
-                const question = this.questionInput.value.trim();
-                if (!question) return;
+            // async handleSendMessage() {
+            //     const question = this.questionInput.value.trim();
+            //     if (!question) return;
 
-                // Add user message
-                this.addMessage(question, 'user');
-                this.questionInput.value = '';
+            //     // Add user message
+            //     this.addMessage(question, 'user');
+            //     this.questionInput.value = '';
                 
-                // Show loading state
-                this.setLoading(true);
+            //     // Show loading state
+            //     this.setLoading(true);
                 
-                try {
-                    const response = await this.sendQuestion(question);
+            //     try {
+            //         const response = await this.sendQuestion(question);
                     
-                    this.addMessage(response, 'assistant');
-                } catch (error) {
-                    this.addMessage(`Error: ${error.message}`, 'assistant');
-                } finally {
-                    this.setLoading(false);
-                }
-            }
+            //         this.addMessage(response, 'assistant');
+            //     } catch (error) {
+            //         this.addMessage(`Error: ${error.message}`, 'assistant');
+            //     } finally {
+            //         this.setLoading(false);
+            //     }
+            // }
+            async handleSendMessage() {
+    const question = this.questionInput.value.trim();
+    if (!question) return;
+
+    this.addMessage(question, 'user');
+    this.questionInput.value = '';
+    this.setLoading(true);
+
+    try {
+        const response = await this.sendQuestion(question);
+        // response is the full object: { answer, result, status }
+        let message = response.answer;
+        if (response.result && Array.isArray(response.result) && response.result.length > 0) {
+            message += '<br>' + this.createTableFromResult(response.result);
+        }
+        this.addMessage(message, 'assistant', true); // pass true to allow HTML
+    } catch (error) {
+        this.addMessage(`Error: ${error.message}`, 'assistant');
+    } finally {
+        this.setLoading(false);
+    }
+}
 
             async sendQuestion(question) {
                 const response = await fetch(`${this.apiUrl}/query`, {
@@ -409,18 +446,22 @@ Table: products (id, name, price)
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
-                return data.answer;
+                
+                return await response.json();
             }
 
-            addMessage(content, sender) {
+            addMessage(content, sender, isHtml = false) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${sender}`;
                 
                 const bubbleDiv = document.createElement('div');
                 bubbleDiv.className = 'message-bubble';
                 
-                bubbleDiv.textContent = content;
+                if (isHtml) {
+        bubbleDiv.innerHTML = content;
+    } else {
+        bubbleDiv.textContent = content;
+    }
                 
                 messageDiv.appendChild(bubbleDiv);
                 this.messagesContainer.appendChild(messageDiv);
