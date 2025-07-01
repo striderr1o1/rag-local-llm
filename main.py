@@ -57,14 +57,16 @@ def get_embedding(text):
 #--------------------------------------------------------------------------------------------------
 def delete_existing_collection(name: str, db_path="newchroma_db"):
     client = chromadb.PersistentClient(path=db_path)
-
+    i = 0
     try:
         collections = client.list_collections()
+        print(len(collections))
         for col in collections:
             if col.name == name:
                 client.delete_collection(name=name)
-                print(f"[+] Deleted existing collection: {name}")
-                return  
+                i= i+1
+                print(f"[+] Deleted existing collection: {name} {i}")
+                #return  
         print(f"[!] Collection '{name}' not found, nothing deleted.")
     except Exception as e:
         print(f"[x] Error deleting collection '{name}': {e}")
