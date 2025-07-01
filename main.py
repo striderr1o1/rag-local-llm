@@ -7,11 +7,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
-from addData import conn
+
 #from functions import simple_chunk_lines, get_embedding, delete_existing_collection, StoreEmbeddingsInVec_db, retrieveContext, makePrompt, ask_gemma, parsing, execute_sql, Retrieve, QueryLLM
 import pandas as pd
 import re
 from fastapi.responses import JSONResponse
+import cx_Oracle
+#from db_config import get_connection
 # Initialize FastAPI app
 app = FastAPI(title="SQL RAG Assistant", version="1.0.0")
 
@@ -168,6 +170,30 @@ def execute_sql(sql: str):
         return {"error": str(e)}
     finally:
         conn.close()
+
+# def execute_sql(sql: str):
+#     conn = get_connection()
+#     cursor = conn.cursor()
+#     sql = split(sql)
+#     print(f"[>] Executing SQL: {sql}")
+#     try:
+#         cursor.execute(sql)
+
+#         # Try to fetch results
+#         try:
+#             rows = cursor.fetchall()
+#             columns = [desc[0] for desc in cursor.description]
+#             result = [dict(zip(columns, row)) for row in rows]
+#             return result
+#         except cx_Oracle.InterfaceError:
+#             # No results to fetch (INSERT/UPDATE)
+#             conn.commit()
+#             return {"message": "Statement executed successfully."}
+#     except Exception as e:
+#         return {"error": str(e)}
+#     finally:
+#         cursor.close()
+#         conn.close()
 #--------------------------------------------------------------------------------------------------------
 
 
